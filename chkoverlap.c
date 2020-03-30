@@ -1,5 +1,5 @@
 /*
- *	chkover.c
+ *	chkoverlap.c
  *
  *  https://github.com/SmallRoomLabs/chkoverlap
  *
@@ -11,7 +11,15 @@
  * palbart that doesn't warn when data and/or code areas run into
  * eachother.
  *
+ * As palbart also lacks the memory usage map that other assemblers
+ * can generate this is added as an option here. The compressed variant
+ * prints an X if any of two consecutive words  are used, this so it
+ * fits on a 80 character wide screen. The full version prints an X
+ * on every location in use, so it will fit on a 132 column device.
+ * The X is replaced with an O if there's an overlap in that location(s)
+ *
  * 2020-03-30 v1.00 MEM     First Release
+ * 2020-03-30 v1.01 MEM     Added memory maps
  *
  */
 
@@ -22,13 +30,15 @@
 #include <unistd.h>
 
 char *progname = "chkoverlap";
-char *version = "1.00";
+char *version = "1.01";
 
 void usage() {
     fprintf(stderr, "\nUsage:  %s [options] filename\n\n", progname);
     fprintf(stderr, "where [options] are optional parameters chosen from:\n");
     fprintf(stderr, "    -b             process a .BIN file\n");
     fprintf(stderr, "    -r             process a .RIM file\n");
+    fprintf(stderr, "    -m             display (compressed) memory usage map\n");
+    fprintf(stderr, "    -M             display (full) memory usage map\n");
     fprintf(stderr, "    -s             silent operation\n");
     fprintf(stderr, "    -v             verbose operation\n");
     fprintf(stderr, "\n");
@@ -42,10 +52,10 @@ int main(int argc, char *argv[]) {
     uint16_t address = 0;
     int cnt = 0;
     int inuse[4096];
-    uint8_t isBin = 0, isRim = 0, isVerbose = 0, isSilent = 0;
+    uint8_t isBin = 0, isRim = 0, isVerbose = 0, isSilent = 0, isMapC = 0, isMapF = 0;
 
     int opt;
-    while ((opt = getopt(argc, argv, "rbvsV")) != -1) {
+    while ((opt = getopt(argc, argv, "rbvsmMV")) != -1) {
         switch (opt) {
         case 'r':
             isRim++;
@@ -55,6 +65,12 @@ int main(int argc, char *argv[]) {
             break;
         case 'v':
             isVerbose++;
+            break;
+        case 'm':
+            isMapC++;
+            break;
+        case 'M':
+            isMapF++;
             break;
         case 's':
             isSilent++;
@@ -159,6 +175,27 @@ int main(int argc, char *argv[]) {
     if (cnt > 0 && !isSilent) {
         printf("Overlap in area %04o to %04o\n", start, 4095);
         overlaps++;
+    }
+
+    if (isMapC) {
+        if (overlaps > 0 && !isSilent) printf("\n");
+        for (uint16_t i = 0; i < 4096; i += 2) {
+            char s = '.';
+            if (inuse[i] > 0 || inuse[i + 1] > 0) s = 'X';
+            if (inuse[i] > 1 || inuse[i + 1] > 1) s = 'O';
+            printf("%c", s);
+            if (i % 128 == 126) printf("\n");
+        }
+    }
+    if (isMapF) {
+        if (overlaps > 0 && !isSilent) printf("\n");
+        for (uint16_t i = 0; i < 4096; i++) {
+            char s = '.';
+            if (inuse[i] > 0) s = 'X';
+            if (inuse[i] > 1) s = 'O';
+            printf("%c", s);
+            if (i % 128 == 127) printf("\n");
+        }
     }
 
     return overlaps;

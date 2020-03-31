@@ -20,6 +20,7 @@
  *
  * 2020-03-30 v1.00 MEM     First Release
  * 2020-03-30 v1.01 MEM     Added memory maps
+ * 2020-03-31 v1.02 MEM     Added page numbers to memory maps
  *
  */
 
@@ -30,7 +31,7 @@
 #include <unistd.h>
 
 char *progname = "chkoverlap";
-char *version = "1.01";
+char *version = "1.02";
 
 void usage() {
     fprintf(stderr, "\nUsage:  %s [options] filename\n\n", progname);
@@ -180,6 +181,7 @@ int main(int argc, char *argv[]) {
     if (isMapC) {
         if (overlaps > 0 && !isSilent) printf("\n");
         for (uint16_t i = 0; i < 4096; i += 2) {
+            if (i % 128 == 0) printf("%04o ", i);
             char s = '.';
             if (inuse[i] > 0 || inuse[i + 1] > 0) s = 'X';
             if (inuse[i] > 1 || inuse[i + 1] > 1) s = 'O';
@@ -190,6 +192,7 @@ int main(int argc, char *argv[]) {
     if (isMapF) {
         if (overlaps > 0 && !isSilent) printf("\n");
         for (uint16_t i = 0; i < 4096; i++) {
+            if (i % 128 == 0) printf("%02o ", i / 64);
             char s = '.';
             if (inuse[i] > 0) s = 'X';
             if (inuse[i] > 1) s = 'O';

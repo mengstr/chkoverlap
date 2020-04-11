@@ -19,7 +19,7 @@ CHK:=../tools/chkoverlap
 
 all: tb8.bin
 
-tb8.bin: tb8.pal $(PAL)
+tb8.bin: tb8.pal
         $(PAL) -a -p -n -d -x -t 8 $<
         $(CHK) -b $@
         $(CHK) -b -M -s $@ > tb8.map

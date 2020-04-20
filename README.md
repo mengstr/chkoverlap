@@ -1,4 +1,5 @@
-# chkoverlap
+# chkoverlap ![C/C++ CI](https://github.com/SmallRoomLabs/chkoverlap/workflows/C/C++%20CI/badge.svg)
+
 Check for overlaps in data/code areas in PDP8 .rim/.bin files
 
 This program analyzes (and optionally dumps) a BIN or RIM file

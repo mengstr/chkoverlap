@@ -9,3 +9,4 @@
 *.dSYM
 a.out
 chkoverlap
+*.log

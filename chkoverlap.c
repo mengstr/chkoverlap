@@ -21,6 +21,7 @@
  * 2020-03-30 v1.00 MEM     First Release
  * 2020-03-30 v1.01 MEM     Added memory maps
  * 2020-03-31 v1.02 MEM     Added page numbers to memory maps
+ * 2020-04-29 v1.03 MEM     Fixed compilation warnings in Github CI
  *
  */
 
@@ -31,7 +32,7 @@
 #include <unistd.h>
 
 char *progname = "chkoverlap";
-char *version = "1.02";
+char *version = "1.03";
 
 void usage() {
     fprintf(stderr, "\nUsage:  %s [options] filename\n\n", progname);
@@ -141,7 +142,7 @@ int main(int argc, char *argv[]) {
         // for the later overlap check.
         if (cmd == 0x00) {
             len=fread(&b2, 1, 1, f);
-            if (len!=1) exit(1);
+            if (len<0) exit(1);
             uint16_t data = ((b1 & 0x3f) << 6) + (b2 & 0x3f);
             if (isVerbose) {
                 if (oflag)

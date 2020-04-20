@@ -94,7 +94,9 @@ int main(int argc, char *argv[]) {
     // command type (the two highest bits)
     while (!feof(f)) {
         uint8_t b1, b2;
-        fread(&b1, 1, 1, f);
+        size_t len;
+        len=fread(&b1, 1, 1, f);
+        if (len!=1) exit(1);
         uint8_t cmd = b1 & 0xC0;
 
         // As long as it's a header just tally them up
@@ -125,7 +127,8 @@ int main(int argc, char *argv[]) {
         // byte from the file and update the address variable.
         // The oflag is set to signal that we have a newly changed address
         if (cmd == 0x40) {
-            fread(&b2, 1, 1, f);
+            len=fread(&b2, 1, 1, f);
+            if (len!=1) exit(1);
             address = ((b1 & 0x3f) << 6) + (b2 & 0x3f);
             oflag = 1;
             continue;
@@ -137,7 +140,8 @@ int main(int argc, char *argv[]) {
         // Also count the number of times this address has been used here
         // for the later overlap check.
         if (cmd == 0x00) {
-            fread(&b2, 1, 1, f);
+            len=fread(&b2, 1, 1, f);
+            if (len!=1) exit(1);
             uint16_t data = ((b1 & 0x3f) << 6) + (b2 & 0x3f);
             if (isVerbose) {
                 if (oflag)
@@ -160,7 +164,7 @@ int main(int argc, char *argv[]) {
     // larger than one. If not silent then print a message for each separate
     // area
     cnt = 0;
-    uint16_t start;
+    uint16_t start=0;
     uint16_t overlaps = 0;
     for (uint16_t i = 0; i < 4096; i++) {
         if (inuse[i] > 1) {

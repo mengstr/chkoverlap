@@ -9,7 +9,24 @@ eachother.
 
 It can also print memory usage maps, either in compressed (two words per character) or full (one character per word).
 
-Return value from the program is the number of overlapping areas found so it canbe directly used in a Makefile to abort processing if there are overlaps.
+Return value from the program is the number of overlapping areas found so it can be directly used in a Makefile to abort processing if there are overlaps.
+
+### Example Makefile
+This first assembles the source using palbart, followed by a check of overlaps and finally it writes a map-file.
+
+```
+PAL:=../tools/palbart
+CHK:=../tools/chkoverlap
+
+all: tb8.bin
+
+tb8.bin: tb8.pal
+        $(PAL) -a -p -n -d -x -t 8 $<
+        $(CHK) -b $@
+        $(CHK) -b -M -s $@ > tb8.map
+```
+
+
 
 ### Usage instructions
 ```

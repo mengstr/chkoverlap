@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
         // for the later overlap check.
         if (cmd == 0x00) {
             len=fread(&b2, 1, 1, f);
-            if (len<0) exit(1);
+            if (len>1) exit(1); // Keep gcc/lint happy
             uint16_t data = ((b1 & 0x3f) << 6) + (b2 & 0x3f);
             if (isVerbose) {
                 if (oflag)
